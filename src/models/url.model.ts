@@ -16,9 +16,13 @@ export interface UrlRecord {
 export const createShortURL = async (originalURL: string): Promise<UrlRecord> => {
 
   //inserting temp placeholder to get new id
+
+  // if same time ppls created so this
+  const tempPlaceholder = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+
   const insertedID = await pool.query(
     `INSERT INTO urls (short_url, original_url) VALUES ($1, $2) RETURNING id;`,
-    ["temp", originalURL]
+    [tempPlaceholder, originalURL]
   )
 
   const id = insertedID.rows[0].id
