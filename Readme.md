@@ -1,33 +1,117 @@
-# URL Shortener
+# URL Shortener API
 
-A URL shortener built with TypeScript, Express, PostgreSQL, and Prisma.
+A lightweight, scalable URL shortening service built with TypeScript, Node.js, Express, and PostgreSQL.
 
-This project is being built to learn backend development and system design concepts such as database design, caching, rate limiting, and scalability.
+It maps long URLs to Base62-encoded short keys, tracks visit analytics, and issues HTTP 302 redirects.
+
+---
+
+## Features
+
+- **Base62 Short Code Encoding**: Encodes database auto-increment IDs into compact alphanumeric keys (`0-9`, `a-z`, `A-Z`).
+- **302 Temporary Redirects**: Ensures incoming requests hit the server to record analytics accurately.
+- **Analytics & Metadata**: Tracks click counts and creation timestamps.
+- **Concurrency Safety**: Prevents key collisions on simultaneous URL insertion requests.
+
+---
 
 ## Tech Stack
 
-- TypeScript
-- Node.js
-- Express
-- PostgreSQL
-- Prisma
+- **Language**: TypeScript
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL (`pg` pool driver)
+- **Execution Engine**: `tsx`
 
-## Architecture
+---
 
-Currently:
+## Project Structure
 
-Client → Express → PostgreSQL
+```
+URL Shortner/
+├── server.ts             # Application entry point
+├── src/
+│   ├── app.ts            # Express setup and middleware
+│   ├── config/           # Database connection pool
+│   ├── controller/       # Request and response logic
+│   ├── models/           # Database queries & interfaces
+│   ├── routes/           # Express router definitions
+│   ├── schema/           # Database migration scripts
+│   └── utils/            # Base62 encoding utility
+└── package.json
+```
 
-Planned:
+---
 
-Client → Load Balancer → Backend Servers → Redis → PostgreSQL
+## API Reference
 
-## Project Status
+### Create Short URL
 
-Currently in development.
+- **URL**: `/api/shorten`
+- **Method**: `POST`
+- **Headers**: `Content-Type: application/json`
+- **Body**:
+  ```json
+  {
+    "originalUrl": "https://example.com/long-path"
+  }
+  ```
+- **Response** (`201 Created`):
+  ```json
+  {
+    "shortCode": "b",
+    "originalUrl": "https://example.com/long-path",
+    "shortUrl": "http://localhost:3000/b"
+  }
+  ```
 
-## Running Locally
+---
 
+### Redirect to Destination
+
+- **URL**: `/:shortCode`
+- **Method**: `GET`
+- **Response**: `302 Found` (Redirects to original URL and increments click counter)
+
+---
+
+### Fetch Link Analytics
+
+- **URL**: `/api/stats/:shortCode`
+- **Method**: `GET`
+- **Response** (`200 OK`):
+  ```json
+  {
+    "shortCode": "b",
+    "originalUrl": "https://example.com/long-path",
+    "clicks": 1,
+    "createdAt": "2026-08-21T14:00:00.000Z"
+  }
+  ```
+
+---
+
+## Getting Started
+
+### 1. Prerequisites
+Ensure PostgreSQL and Node.js are installed and running.
+
+### 2. Environment Configuration
+Create a `.env` file in the project root:
+
+```env
+PORT=3000
+DATABASE_URL=postgresql://username:password@localhost:5432/url_shortener
+```
+
+### 3. Installation & Migration
 ```bash
 npm install
-npm run dev
+npm run db:init
+```
+
+### 4. Run Server
+```bash
+npm start
+```
+Server runs on `http://localhost:3000`.
