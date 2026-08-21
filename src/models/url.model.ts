@@ -13,26 +13,26 @@ export interface UrlRecord {
 //COMMANDSSS
 
 //inserting a new URL in DB
-export const createShortURL = async (originalURL: string): Promise<UrlRecord> =>{
+export const createShortURL = async (originalURL: string): Promise<UrlRecord> => {
 
-    //inserting temp placeholder to get new id
-    const insertedID = await pool.query(
-        `INSERT INTO urls (short_url, original_url) VALUES ($1, $2) RETURNING id;`,
-        ["temp", originalURL]
-    )
+  //inserting temp placeholder to get new id
+  const insertedID = await pool.query(
+    `INSERT INTO urls (short_url, original_url) VALUES ($1, $2) RETURNING id;`,
+    ["temp", originalURL]
+  )
 
-    const id = insertedID.rows[0].id
+  const id = insertedID.rows[0].id
 
-    //generate base62 short code from id
-    const shortCode = encodeBase62(id)
+  //generate base62 short code from id
+  const shortCode = encodeBase62(id)
 
-    //update row with short code
-    const updated = await pool.query(
-        `UPDATE urls SET short_url = $1 WHERE id = $2 RETURNING *;`,
-        [shortCode, id]
-    )
+  //update row with short code
+  const updated = await pool.query(
+    `UPDATE urls SET short_url = $1 WHERE id = $2 RETURNING *;`,
+    [shortCode, id]
+  )
 
-    return updated.rows[0];
+  return updated.rows[0];
 }
 
 
