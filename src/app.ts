@@ -1,11 +1,9 @@
 import express from "express";
-import { pool } from './config/db.js';
+import urlRouter from "./routes/url.routes.js"
 
 const app = express();
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("URL Shortener");
-});
+app.use("/", urlRouter);
 
 export default app;
