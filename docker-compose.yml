@@ -11,6 +11,13 @@ services:
       - redis
     restart: unless-stopped
 
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+    depends_on:
+      - nginx
+
   nginx:
     image: nginx:alpine
     container_name: nginx-proxy
