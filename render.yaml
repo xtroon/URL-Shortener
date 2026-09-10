@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: url-shortener-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PORT
+        value: 3000

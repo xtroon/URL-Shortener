@@ -3,6 +3,7 @@ import {
   ArrowUpRight,
   Check,
   Clipboard,
+  Eye,
   ExternalLink,
   Link2,
   Trash2,
@@ -12,10 +13,12 @@ interface LinkItem {
   shortCode: string;
   originalUrl: string;
   shortUrl: string;
+  clicks: number;
   createdAt: string;
 }
 
 const STORAGE_KEY = "url_history";
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 function App() {
   const [url, setUrl] = useState("");
@@ -34,13 +37,39 @@ function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
   }, [history]);
 
+  useEffect(() => {
+    if (!history.length) return;
+
+    const refreshClicks = async () => {
+      const updatedHistory = await Promise.all(
+        history.map(async (item) => {
+          try {
+            const response = await fetch(`${API_BASE}/api/stats/${encodeURIComponent(item.shortCode)}`);
+            if (!response.ok) return item;
+            const data = await response.json();
+            return { ...item, clicks: data.clicks };
+          } catch {
+            return item;
+          }
+        }),
+      );
+
+      setHistory((previous) => {
+        const changed = updatedHistory.some((item, index) => item.clicks !== previous[index]?.clicks);
+        return changed ? updatedHistory : previous;
+      });
+    };
+
+    refreshClicks();
+  }, []);
+
   const shortenUrl = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
     setResult(null);
 
     if (!url.trim()) {
-      setError("Paste a URL first. We promise to make it smaller.");
+      setError("Paste a URL first. I promise to make it smaller.");
       return;
     }
 
@@ -53,7 +82,7 @@ function App() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/shorten", {
+      const response = await fetch(`${API_BASE}/api/shorten`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ originalUrl: url.trim() }),
@@ -69,6 +98,7 @@ function App() {
         shortCode: data.shortCode,
         originalUrl: data.originalUrl,
         shortUrl: data.shortUrl,
+        clicks: data.clicks ?? 0,
         createdAt: new Date().toISOString(),
       };
       setResult(item);
@@ -164,6 +194,7 @@ function App() {
                 <div className="flex items-center gap-[13px] rounded-xl border border-[#e1e5de] bg-white/60 p-[13px]" key={item.shortCode}>
                   <div className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[9px] bg-[#eaf2df] text-[#769b4b]"><Link2 size={17} /></div>
                   <div className="min-w-0 flex-1"><a className="flex items-center gap-[5px] overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[12px] text-[#47752e] no-underline" href={item.shortUrl} target="_blank" rel="noreferrer">{item.shortUrl} <ExternalLink size={12} /></a><p className="mt-[5px] overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-[#a0a69f]">{item.originalUrl}</p></div>
+                  <span className="flex shrink-0 items-center gap-1 font-mono text-[10px] text-[#8b958a]" title="Clicks"><Eye size={14} /> {item.clicks ?? 0}</span>
                   <button className="grid h-[31px] w-[31px] shrink-0 place-items-center rounded-lg border-0 bg-transparent text-[#8b958a] hover:bg-[#edf4e7] hover:text-[#47752e]" onClick={() => copyUrl(item.shortUrl, item.shortCode)} aria-label="Copy shortened URL">{copied === item.shortCode ? <Check size={16} /> : <Clipboard size={16} />}</button>
                   <button className="grid h-[31px] w-[31px] shrink-0 place-items-center rounded-lg border-0 bg-transparent text-[#8b958a] hover:bg-[#f9ece8] hover:text-[#b55e50]" onClick={() => deleteUrl(item.shortCode)} aria-label="Delete shortened URL"><Trash2 size={16} /></button>
                 </div>

@@ -2,7 +2,7 @@
   "name": "url-shortner",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsx server.ts",
@@ -16,8 +16,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "ioredis": "^6.0.0",
-    "pg": "^8.23.0",
-    "redis": "^6.2.1"
+    "pg": "^8.23.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

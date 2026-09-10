@@ -9,14 +9,10 @@ export interface UrlRecord {
   created_at: Date;
 }
 
-//COMMANDSSS
-
-//inserting a new URL in DB
+// insert a new URL in DB
 export const createShortURL = async (originalURL: string): Promise<UrlRecord> => {
 
-  //inserting temp placeholder to get new id
-
-  // if same time ppls created so this
+  // insert temp placeholder to get new ID
   const tempPlaceholder = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
   const insertedID = await pool.query(

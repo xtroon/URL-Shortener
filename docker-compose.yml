@@ -1,5 +1,5 @@
 services:
-  app:
+  app1:
     build: .
     expose:
       - "3000"
@@ -8,15 +8,58 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html
+  app2:
+    build: .
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379
     depends_on:
-      - nginx
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  app3:
+    build: .
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  web-builder:
+    build: ./web
+    volumes:
+      - web-dist:/app/dist
 
   nginx:
     image: nginx:alpine
@@ -25,13 +68,24 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - web-dist:/usr/share/nginx/html:ro
     depends_on:
-      - app
+      app1:
+        condition: service_healthy
+      app2:
+        condition: service_healthy
+      app3:
+        condition: service_healthy
+      web-builder:
+        condition: service_completed_successfully
     restart: unless-stopped
-  
+
   redis:
     image: redis:alpine
     container_name: redis-cache
     ports:
       - "6379:6379"
     restart: unless-stopped
+
+volumes:
+  web-dist:

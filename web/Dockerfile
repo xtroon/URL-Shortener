@@ -1,4 +1,4 @@
-FROM node:22 AS build
+FROM node:22
 
 WORKDIR /app
 
@@ -10,5 +10,4 @@ COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+CMD ["echo", "Build complete"]

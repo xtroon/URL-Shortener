@@ -4,7 +4,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Connect to Redis (uses REDIS_URL in production, fallback to local)
-export const redisClient = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+export const redisClient = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
+  connectTimeout: 1000,
+  maxRetriesPerRequest: 1,
+  enableOfflineQueue: false,
+});
 
 redisClient.on("connect", () => {
   console.log("Connected to Redis successfully!");

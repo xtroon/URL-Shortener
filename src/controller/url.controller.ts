@@ -15,19 +15,25 @@ export const shortenUrl = async (
     const { originalUrl } = req.body;
 
     if (!originalUrl) {
-      res.status(400).json({ error: "Missing original_url" });
+      res.status(400).json({ error: "Missing originalUrl" });
       return;
     }
 
     const record = await createShortURL(originalUrl);
 
-    const fullBaseUrl = `${req.protocol}://${req.get("host")}`;
+    const requestBaseUrl = `${req.protocol}://${req.get("host")}`;
+    const fullBaseUrl = process.env.PUBLIC_BASE_URL || (
+      requestBaseUrl.includes("localhost:5173")
+        ? "http://localhost:3000"
+        : requestBaseUrl
+    );
     const shortenedUrl = `${fullBaseUrl}/${record.short_url}`;
 
     res.status(201).json({
       shortCode: record.short_url,
       originalUrl: record.original_url,
       shortUrl: shortenedUrl,
+      clicks: record.clicks,
     });
   } catch (error) {
     console.error("Error creating short URL:", error);
@@ -43,8 +49,13 @@ export const redirectToOriginalUrl = async (
   try {
     const { shortCode } = req.params;
 
-    //try searhc in cache
-    const cachedUrl = await redisClient.get(shortCode as string);
+    // try search in cache
+    let cachedUrl: string | null = null;
+    try {
+      cachedUrl = await redisClient.get(shortCode as string);
+    } catch (error) {
+      console.error("Redis unavailable, using PostgreSQL:", error);
+    }
     if (cachedUrl) {
       console.log(`[Cache Hit] Redis: ${shortCode} → ${cachedUrl}`);
 
@@ -66,9 +77,15 @@ export const redirectToOriginalUrl = async (
     }
 
     //save in cache
-    await redisClient.set(shortCode as string, record.original_url, "EX", 86400);
+    try {
+      await redisClient.set(shortCode as string, record.original_url, "EX", 86400);
+    } catch (error) {
+      console.error("Redis unavailable, redirecting without cache:", error);
+    }
 
-    await incrementClicks(shortCode as string);
+    incrementClicks(shortCode as string).catch((err) =>
+      console.error("Async click count failed:", err),
+    );
 
     res.redirect(302, record.original_url);
   } catch (error) {
