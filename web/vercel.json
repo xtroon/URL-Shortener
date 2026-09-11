@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/([a-zA-Z0-9]+)", "destination": "https://url-shortener-24c4.onrender.com/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
