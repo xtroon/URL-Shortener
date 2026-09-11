@@ -25,7 +25,7 @@ app.use(express.json({ limit: "100kb" }));
 // Rate limiters
 const shortenLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 50,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many URLs shortened. Try again in a minute." },
@@ -33,7 +33,7 @@ const shortenLimiter = rateLimit({
 
 const statsLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 30,
+  max: 50,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests. Try again in a minute." },
