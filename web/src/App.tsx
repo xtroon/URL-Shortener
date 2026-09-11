@@ -8,6 +8,7 @@ import {
   Link2,
   Trash2,
 } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 
 interface LinkItem {
   shortCode: string;
@@ -208,6 +209,7 @@ function App() {
 
 
       <footer className="mx-auto flex max-w-[1120px] justify-between px-7 pb-[30px] pt-[22px] font-mono text-[10px] text-[#a0a89f] max-sm:flex-wrap max-sm:gap-[15px] max-sm:px-[18px] max-sm:pb-[26px]"><span className="font-medium text-[#17211b]">urlshortener</span><span>Made by <a className="font-bold text-[#17211b] underline decoration-2 underline-offset-2" href="https://xtroon.vercel.app" target="_blank" rel="noreferrer">Xtroon</a></span></footer>
+      <Analytics />
     </div>
   );
 }
