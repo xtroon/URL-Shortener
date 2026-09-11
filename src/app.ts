@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import urlRouter from "./routes/url.routes.js";
 
 const app = express();
@@ -20,6 +21,35 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json({ limit: "100kb" }));
+
+// Rate limiters
+const shortenLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many URLs shortened. Try again in a minute." },
+});
+
+const statsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests. Try again in a minute." },
+});
+
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests. Slow down." },
+});
+
+app.use(globalLimiter);
+app.use("/api/shorten", shortenLimiter);
+app.use("/api/stats", statsLimiter);
 
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url} → handled by ${process.env.HOSTNAME || "unknown"}`);
