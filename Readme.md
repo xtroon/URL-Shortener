@@ -1,14 +1,13 @@
-# URL Shortener | GitHub | TypeScript, Express, PostgreSQL, Redis, Nginx, Docker
-
+##  URL Shortener
 A full-stack URL shortener with a TypeScript API, PostgreSQL persistence, Redis caching, and a small React frontend.
 
-## Highlights
+### Highlights
 
 - Architected a scalable URL shortening service with compact Base62 conversion and indexed URL resolution, delivering an estimated 1–5ms average latency for Redis-cached redirects.
 - Implemented a Redis caching layer with 24-hour TTLs and cache-first redirect resolution, targeting 5,000+ requests/sec for cached traffic while reducing database load.
 - Orchestrated containerized deployment with Nginx as a reverse proxy and load balancer, using least-connections routing across 3 application instances for horizontal scaling and improved traffic distribution.
 
-## Features
+### Features
 
 - Creates compact Base62 short codes from database IDs.
 - Redirects short links with HTTP `302` responses.
@@ -16,7 +15,7 @@ A full-stack URL shortener with a TypeScript API, PostgreSQL persistence, Redis 
 - Uses Redis to cache redirect lookups.
 - Provides a simple browser UI for shortening, copying, and reviewing links.
 
-## Tech Stack
+### Tech Stack
 
 ### Backend
 
@@ -41,7 +40,7 @@ A full-stack URL shortener with a TypeScript API, PostgreSQL persistence, Redis 
 - Nginx
 - Docker Compose configuration for the application and Redis cache
 
-## Project Structure
+### Project Structure
 
 ```text
 URL Shortner/
