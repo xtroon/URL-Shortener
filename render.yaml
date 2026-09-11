@@ -1,8 +1,9 @@
 services:
   - type: web
     name: url-shortener-api
-    runtime: docker
-    dockerfilePath: ./Dockerfile
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: DATABASE_URL
         sync: false
