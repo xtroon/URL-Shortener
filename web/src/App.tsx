@@ -74,13 +74,6 @@ function App() {
       return;
     }
 
-    try {
-      new URL(url);
-    } catch {
-      setError("That URL needs a little fixing. Try adding https://");
-      return;
-    }
-
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE}/api/shorten`, {

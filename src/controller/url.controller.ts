@@ -19,7 +19,12 @@ export const shortenUrl = async (
       return;
     }
 
-    const record = await createShortURL(originalUrl);
+    let formattedUrl = originalUrl.trim();
+    if (!/^https?:\/\//i.test(formattedUrl)) {
+      formattedUrl = `https://${formattedUrl}`;
+    }
+
+    const record = await createShortURL(formattedUrl);
 
     const requestBaseUrl = `${req.protocol}://${req.get("host")}`;
     const fullBaseUrl = process.env.PUBLIC_BASE_URL || (

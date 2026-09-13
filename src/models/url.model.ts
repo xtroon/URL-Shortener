@@ -22,8 +22,9 @@ export const createShortURL = async (originalURL: string): Promise<UrlRecord> =>
 
   const id = insertedID.rows[0].id
 
-  //generate base62 short code from id
-  const shortCode = encodeBase62(id)
+  // offset by 1 billion so all short codes are 6 characters long and encoding
+  const ID_OFFSET = 1_000_000_000;
+  const shortCode = encodeBase62(id + ID_OFFSET);
 
   //update row with short code
   const updated = await pool.query(

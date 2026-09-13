@@ -24,27 +24,27 @@ app.use(express.json({ limit: "100kb" }));
 
 // Rate limiters
 const shortenLimiter = rateLimit({
-  windowMs: 60 * 1000,
+  windowMs: 10 * 60 * 1000,
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many URLs shortened. Try again in a minute." },
+  message: { error: "Too many URLs shortened. Try again in 10 minutes." },
 });
 
 const statsLimiter = rateLimit({
-  windowMs: 60 * 1000,
+  windowMs: 10 * 60 * 1000,
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many requests. Try again in a minute." },
+  message: { error: "Too many requests. Try again in 10 minutes." },
 });
 
 const globalLimiter = rateLimit({
-  windowMs: 60 * 1000,
+  windowMs: 10 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many requests. Slow down." },
+  message: { error: "Too many requests. Slow down. Try again in 10 minutes." },
 });
 
 app.use(globalLimiter);
